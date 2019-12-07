@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/s_switch"
+        android:textSize="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:checked="false"
+        android:longClickable="false"
+        android:textOff="Firebase"
+        android:textOn="MQTT"
+        android:theme="@style/Widget.Design.FloatingActionButton"
+        android:layout_marginTop="150dp"
+        android:text="Firebase/MQTT"/>
+
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+
+<!--        <EditText-->
+<!--            android:id="@+id/topic"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentStart="true"-->
+<!--            android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginEnd="10dp"-->
+<!--            android:layout_toStartOf="@+id/btn_subscribe"-->
+<!--            android:hint="topic" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_subscribe"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginTop="20dp"-->
+<!--            android:background="#1E90FF"-->
+<!--            android:text="Subscribe" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_unsubscribe"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="40dp"-->
+<!--            android:layout_marginTop="20dp"-->
+<!--            android:layout_toEndOf="@+id/btn_subscribe"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:background="#1E90FF"-->
+<!--            android:text="Unsubscribe" />-->
+<!--    </RelativeLayout>-->
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_send"
+        android:text="Send"
+        android:layout_marginTop="20dp"
+        android:background="#1E90FF"/>
+
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="message" />
+
+</LinearLayout>
