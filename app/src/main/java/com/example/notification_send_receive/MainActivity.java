@@ -30,6 +30,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.notification_send_receive.ui.Send.SendFragment;
+import com.example.notification_send_receive.ui.client;
 import com.example.notification_send_receive.ui.home.HomeFragment;
 import com.example.notification_send_receive.ui.notifications.NotificationsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -91,13 +92,9 @@ public class MainActivity extends AppCompatActivity {
 
     //MQTT
     private EditText in_message;
-    //private EditText topic;
     //private String sub_topic = "Firebase_MQTT";
-    //private Button btn_send;
-    //private SwitchCompat mSwitchCompat;
     private TextView tokenView;
     private TextView MQTTtokenView;
-    //TextView token;
     TextView MQTTtoken;
 
     //Location
@@ -106,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
     boolean getService = false;     //是否已開啟定位服務
     private LocationManager lms;
     private String bestProvider = LocationManager.GPS_PROVIDER;
+
+    client currentClient = new client();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,39 +132,65 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         adapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1);
         tokenView = findViewById(R.id.tokenView);
-        MQTTtokenView = findViewById(R.id.MQTTtokenView);
+//        MQTTtokenView = findViewById(R.id.MQTTtokenView);
 
         Receiver=new Receiver();
 
-//        final String clientId = MqttClient.generateClientId();
-        final String clientId = "ExampleAndroidClient2";
-        //final String url = "tcp://192.168.232.2:1883";
-        final String url = "tcp://192.168.0.100:1883";
-        Toast.makeText(MainActivity.this, clientId, Toast.LENGTH_LONG).show();
-            client =
-                    new MqttAndroidClient(MainActivity.this, url, clientId);
-
-            try {
-                IMqttToken token = client.connect(options);
-                token.setActionCallback(new IMqttActionListener() {
+//        getTokenFirebase();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
-                    public void onSuccess(IMqttToken asyncActionToken) {
-                        // We are connected
-                        Toast.makeText(MainActivity.this, "Connect MQTT Successfully", Toast.LENGTH_LONG).show();
-                        MQTTtokenView.setText(clientId);
-                        subscribe("Firebase_MQTT");
-                    }
-
-                    @Override
-                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        // Something went wrong e.g. connection timeout or firewall problems
-                        Toast.makeText(MainActivity.this, "Failed to Connect MQTT", Toast.LENGTH_LONG).show();
-
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+                        String token = task.getResult().getToken();
+                        tokenView.setText(token);
+//                        currentClient.setClientId(token);
+//                        MQTTtokenView.setText(token);
+//                        currentClient.setClientId(token);
                     }
                 });
-            } catch (MqttException e) {
-                e.printStackTrace();
+
+
+        //receive from Firebase
+//        getTokenFirebase();
+        if (Receiver != null) {
+            IntentFilter intentFilter = new IntentFilter("NOW");
+            LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver( Receiver, intentFilter);
+        }
+
+        //final String clientId = MqttClient.generateClientId();
+//        final String clientId = "ExampleAndroidClient1";
+//        final String clientId = currentClient.getClientId();
+        final String clientId = tokenView.getText().toString();
+        adapter.add("clientId: "+ clientId);
+        final String url = "tcp://192.168.0.100:1883";
+        Toast.makeText(MainActivity.this, clientId, Toast.LENGTH_LONG).show();
+        client =
+                new MqttAndroidClient(MainActivity.this, url, clientId);
+
+        try {
+            IMqttToken token = client.connect(options);
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // We are connected
+                    Toast.makeText(MainActivity.this, "Connect MQTT Successfully", Toast.LENGTH_LONG).show();
+//                    MQTTtokenView.setText(clientId);
+                    subscribe("Firebase_MQTT");
                 }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // Something went wrong e.g. connection timeout or firewall problems
+                    Toast.makeText(MainActivity.this, "Failed to Connect MQTT", Toast.LENGTH_LONG).show();
+
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -186,23 +211,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                MQTTtokenView = findViewById(R.id.MQTTtokenView);
-                String currentToken = MQTTtokenView.getText().toString();
+//                MQTTtokenView = findViewById(R.id.MQTTtokenView);
+//                String currentToken = MQTTtokenView.getText().toString();
+                String currentToken = tokenView.getText().toString();
 
                 String msg = new String(message.getPayload());
                 JSONObject temp_jsonMessage = new JSONObject(msg);
                 JSONObject jsonMessage = new JSONObject();
                 String receiverToken = temp_jsonMessage.get("to").toString();
-                String senderToken = temp_jsonMessage.get("SenderToken").toString();
+
+                jsonMessage = temp_jsonMessage.getJSONObject("data");
+                JSONObject jsonParam = jsonMessage.getJSONObject("params");
+                JSONObject jsonToken = jsonMessage.getJSONObject("Token");
+                String senderToken = jsonToken.get("SenderToken").toString();
 
                 if(receiverToken.equals(currentToken)){
                     if(!senderToken.equals(currentToken)){
-                        jsonMessage = temp_jsonMessage.getJSONObject("data");
-                        String title = jsonMessage.get("title").toString();
-                        String description = jsonMessage.get("description").toString();
-                        //String latitude = jsonMessage.get("latitude").toString();
-                        //String longitude = jsonMessage.get("longitude").toString();
-                        String radius = jsonMessage.get("radius").toString();
+//                        jsonMessage = temp_jsonMessage.getJSONObject("data");
+                        String title = jsonParam.get("title").toString();
+                        String description = jsonParam.get("description").toString();
                         String final_msg = "Title: " + title +"\n" + "Description: " + description /*+"\n" + "Latitude: " + latitude +"\n" + "Longitude: " + longitude*/;
                         adapter.add(final_msg);
 
@@ -210,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                         temp_jsonMessage.put("Location", currentLocation);
                         temp_jsonMessage.put("to", senderToken);
                         String sendBackData = temp_jsonMessage.toString();
-                        sendMQTT(sendBackData, senderToken);
+                        sendMQTT(sendBackData);
                     }
                     //senderToken == currentToken
                     else{
@@ -230,13 +257,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        //receive from Firebase
-        getTokenFirebase();
-        if (Receiver != null) {
-            IntentFilter intentFilter = new IntentFilter("NOW");
-            LocalBroadcastManager.getInstance(MainActivity.this).registerReceiver( Receiver, intentFilter);
-        }
     }
 
     //Receive notification from FireBase
@@ -249,19 +269,15 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonData = new JSONObject(message);
 
                 JSONObject jsonParam = jsonData.getJSONObject("params");
-                JSONObject jsonMessage = jsonParam.getJSONObject("emergency");
-                String title = jsonMessage.get("title").toString();
-                String description = jsonMessage.get("description").toString();
-                //String latitude = jsonMessage.get("latitude").toString();
-                //String longitude = jsonMessage.get("longitude").toString();
-                //String radius = jsonMessage.get("radius").toString();
+                String title = jsonParam.get("title").toString();
+                String description = jsonParam.get("description").toString();
                 String fireBase_msg = "Title: " + title +"\n" + "Description: " + description /*+"\n" + "Latitude: " + latitude +"\n" + "Longitude: " + longitude*/;
                 adapter.add(fireBase_msg);
 
                 JSONObject locationJson = new JSONObject();
                 JSONObject locationJson2 = new JSONObject();
                 JSONObject sendBackJson = new JSONObject();
-                Toast.makeText(MainActivity.this, "currentLocation: "+currentLocation, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "currentLocation: "+currentLocation, Toast.LENGTH_SHORT).show();
 
                 JSONObject jsonToken = jsonData.getJSONObject("Token");
                 String SenderToken = jsonToken.get("SenderToken").toString();
@@ -269,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
                 locationJson2.put("SendBackLocation", locationJson);
                 sendBackJson.put("to", SenderToken);
                 sendBackJson.put("data", locationJson2);
+                sendBackJson.put("target", "Firebase");
                 String sendBackData = sendBackJson.toString();
                 SEND(sendBackData);
 
@@ -278,9 +295,6 @@ public class MainActivity extends AppCompatActivity {
 
             //sender(phone 1) receiving location information form phone 2
             try {
-                //TextView token;
-                //token = findViewById(R.id.tokenView);
-                //String receiver_token = token.getText().toString();
                 JSONObject jsonData = new JSONObject(message);
                 JSONObject jsonLocation = jsonData.getJSONObject("SendBackLocation");
                 String Location = jsonLocation.get("Location").toString();
@@ -288,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.add(fireBase_msg);
 
             }catch (JSONException e) {
-//                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -304,6 +318,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                         String token = task.getResult().getToken();
                         tokenView.setText(token);
+//                        currentClient.setClientId(token);
+//                        MQTTtokenView.setText(token);
+                        currentClient.setClientId(token);
                     }
                 });
     }
@@ -320,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(String response) {
                 try {
                     JSONObject objres=new JSONObject(response);
-                    //Toast.makeText(MainActivity.this,"Send",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,"Firebase Send Successfully ",Toast.LENGTH_LONG).show();
 
                 } catch (JSONException e) {
                     Toast.makeText(MainActivity.this,"Server Error",Toast.LENGTH_LONG).show();
@@ -362,17 +379,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //MQTT: SEND
-    public void sendMQTT(String message, String SenderToken){
-        MQTTtoken = findViewById(R.id.MQTTtokenView);
-//        String message = in_message.getText().toString();
-//        String sub_topic = topic.getText().toString();
-//        String SenderToken = MQTTtoken.getText().toString();//
+    public void sendMQTT(String message){
+//        MQTTtoken = findViewById(R.id.MQTTtokenView);
         byte[] encodedMessage = new byte[0];
         String strMessage;
         try {
             try{
                 JSONObject inMessage = new JSONObject(message);
-                inMessage.put("SenderToken", SenderToken);
                 strMessage = inMessage.toString();
             }
             catch (JSONException e){
@@ -389,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    Subscribe for MQTT
+    //Subscribe for MQTT
     private void subscribe(String in_topic)
     {
         String topic = in_topic;
@@ -485,5 +498,4 @@ public class MainActivity extends AppCompatActivity {
 
     public ArrayAdapter getAdapter() {return adapter;}
 
-    //public ArrayList<String> getIsSubTopic() {return isSubTopic;}
 }

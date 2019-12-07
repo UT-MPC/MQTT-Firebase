@@ -56,28 +56,28 @@
         app:layout_constraintTop_toBottomOf="@+id/tokenTittle"
         app:layout_constraintVertical_bias="0.005" />
 
-    <TextView
-        android:id="@+id/MQTTtokenTittle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="MQTT Token"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/nav_host_fragment"
-        app:layout_constraintStart_toStartOf="@+id/nav_host_fragment"
-        app:layout_constraintTop_toBottomOf="@+id/tokenView"/>
+<!--    <TextView-->
+<!--        android:id="@+id/MQTTtokenTittle"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:text="MQTT Token"-->
+<!--        android:textAppearance="@style/TextAppearance.AppCompat.Body1"-->
+<!--        android:textSize="20dp"-->
+<!--        app:layout_constraintEnd_toEndOf="@+id/nav_host_fragment"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/nav_host_fragment"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/tokenView"/>-->
 
-    <TextView
-        android:id="@+id/MQTTtokenView"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content"
-        android:textIsSelectable="true"
-        android:textSize="15dp"
-        android:gravity="center_horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/nav_view"
-        app:layout_constraintEnd_toEndOf="@+id/nav_host_fragment"
-        app:layout_constraintStart_toStartOf="@+id/nav_host_fragment"
-        app:layout_constraintTop_toBottomOf="@+id/MQTTtokenTittle"
-        app:layout_constraintVertical_bias="0.005" />
+<!--    <TextView-->
+<!--        android:id="@+id/MQTTtokenView"-->
+<!--        android:layout_width="400dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:textIsSelectable="true"-->
+<!--        android:textSize="15dp"-->
+<!--        android:gravity="center_horizontal"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/nav_view"-->
+<!--        app:layout_constraintEnd_toEndOf="@+id/nav_host_fragment"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/nav_host_fragment"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/MQTTtokenTittle"-->
+<!--        app:layout_constraintVertical_bias="0.005" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>
